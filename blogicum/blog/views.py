@@ -1,12 +1,15 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Post, Category
 from django.utils import timezone
 
+from .models import Category, Post
 
-def basic_set():
+POST_LIMIT = 5
+
+
+def basic_set(manager=Post.objects):
     """Базовый набор выбранных постов"""
     return (
-        Post.objects.select_related('author', 'category', 'location')
+        manager.select_related('author', 'category', 'location')
         .filter(
             is_published=True,
             pub_date__lte=timezone.now(),
@@ -17,8 +20,8 @@ def basic_set():
 
 def index(request):
     """Главная страница"""
-    # Получаем последние 5 опубликованных постов по условиям
-    post_list = basic_set()[:5]
+    # Получаем последние опубликованные посты по условиям
+    post_list = basic_set()[:POST_LIMIT]
     context = {
         'post_list': post_list,
     }
@@ -45,7 +48,7 @@ def category_posts(request, category_slug):
     )
 
     # Получаем опубликованные посты данной категории
-    post_list = basic_set().filter(category=category)
+    post_list = basic_set(manager=Post.objects.filter(category=category))
 
     context = {
         'category': category,

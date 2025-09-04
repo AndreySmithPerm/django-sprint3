@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 MAX_TITLE_LENGHT = 256
+MAX_TITLE_SHORT_LENGTH = 30
 
 
 class AbstractBaseModel(models.Model):
@@ -31,7 +32,7 @@ class Location(AbstractBaseModel):
         verbose_name_plural = 'Местоположения'
 
     def __str__(self):
-        return self.name[:30]
+        return self.name[:MAX_TITLE_SHORT_LENGTH]
 
 
 class Category(AbstractBaseModel):
@@ -51,7 +52,7 @@ class Category(AbstractBaseModel):
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return self.title[:30]
+        return self.title[:MAX_TITLE_SHORT_LENGTH]
 
 
 class Post(AbstractBaseModel):
@@ -59,8 +60,7 @@ class Post(AbstractBaseModel):
                              verbose_name='Строка')
     text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField(
-        null=False,
-        blank=True,
+        default=models.functions.Now(),
         verbose_name='Дата и время публикации',
         help_text=(
             'Если установить дату и время в '
@@ -70,20 +70,23 @@ class Post(AbstractBaseModel):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Автор публикации'
+        verbose_name='Автор публикации',
+        related_name='posts'
     )
     location = models.ForeignKey(
         Location,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name='Местоположение'
+        verbose_name='Местоположение',
+        related_name='posts'
     )
     category = models.ForeignKey(
         Category,
         null=True,
         on_delete=models.SET_NULL,
-        verbose_name='Категория'
+        verbose_name='Категория',
+        related_name='posts'
     )
 
     class Meta():
@@ -91,4 +94,4 @@ class Post(AbstractBaseModel):
         verbose_name_plural = 'Публикации'
 
     def __str__(self):
-        return self.title[:30]
+        return self.title[:MAX_TITLE_SHORT_LENGTH]

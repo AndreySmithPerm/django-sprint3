@@ -48,7 +48,7 @@ def category_posts(request, category_slug):
     )
 
     # Получаем опубликованные посты данной категории
-    post_list = basic_set(manager=Post.objects.filter(category=category))
+    post_list = basic_set(manager=category.posts.all())
 
     context = {
         'category': category,
